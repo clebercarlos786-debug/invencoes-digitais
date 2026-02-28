@@ -3,26 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Motor_S94_Start | Agência de Tecnologia</title>
+    <title>S94_SOBERANIA_PATRIMONIAL</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
-        :root { --blue: #1e3a8a; --tech: #00d2ff; --white: #ffffff; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #0a0a0a; color: white; text-align: center; }
-        .hero { background: linear-gradient(135deg, #0f172a, #1e3a8a); padding: 60px 20px; border-bottom: 4px solid var(--tech); }
-        .card { background: rgba(255,255,255,0.05); padding: 30px; border-radius: 15px; border: 1px solid var(--tech); margin: 20px auto; max-width: 400px; }
-        h1 { font-size: 2rem; color: var(--tech); }
-        .btn-work { display: inline-block; background: var(--tech); color: #000; padding: 20px; text-decoration: none; border-radius: 10px; font-weight: bold; width: 80%; }
+        :root { --neon: #00d2ff; --gold: #c5a059; --bg: #000; }
+        body, html { margin: 0; padding: 0; height: 100%; background: var(--bg); font-family: 'Segoe UI', sans-serif; color: white; overflow: hidden; }
+        .workspace { display: flex; height: 100vh; width: 100vw; }
+
+        /* LADO DIREITO: TERMINAL DE ENGENHARIA S94 (ENTRADA) */
+        .input-panel {
+            width: 45%;
+            background: #050505;
+            border-left: 2px solid var(--neon);
+            display: flex;
+            flex-direction: column;
+            padding: 30px;
+            box-sizing: border-box;
+            order: 2;
+        }
+
+        /* LADO ESQUERDO: MATERIALIZAÇÃO DO PORTAL (DOCUMENTO REAL) */
+        .output-portal { width: 55%; background: #ffffff; order: 1; }
+
+        textarea {
+            flex: 1;
+            background: #0a0a0a;
+            color: var(--neon);
+            border: 1px solid #1a2c3d;
+            border-radius: 4px;
+            padding: 20px;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+        }
+
+        .dna-footer { font-size: 10px; color: var(--gold); margin-top: 15px; font-family: monospace; border-top: 1px solid #222; padding-top: 10px; }
+        iframe { width: 100%; height: 100%; border: none; }
     </style>
 </head>
 <body>
-    <div class="hero">
-        <h1>MOTOR_S94_START</h1>
-        <p>Desenvolvimento Profissional de Sistemas</p>
+
+<div class="workspace">
+    <div class="output-portal">
+        <iframe id="s94_render"></iframe>
     </div>
-    <div class="card">
-        <h2>Contrate meu Serviço</h2>
-        <a href="https://wa.me/5511999999999?text=Olá Kleber, quero um orçamento!" class="btn-work">
-            CHAMAR NO WHATSAPP
-        </a>
+
+    <div class="input-panel">
+        <div style="text-align:center; margin-bottom:25px;">
+            <div style="font-size:28px; font-weight:900; color:var(--neon); letter-spacing:3px;">MOTOR_S94_START</div>
+            <div style="font-size:11px; color:var(--gold); text-transform:uppercase; margin-top:5px;">Engenharia de Ativos Científicos</div>
+        </div>
+
+        <textarea id="data_input" placeholder="Injete ciência: Psicologia, Psiquiatria, Anatomia A-Z..."></textarea>
+        
+        <div class="dna-footer" id="dna_hash">ASSINATURA DIGITAL: AGUARDANDO DADOS...</div>
+        <div style="font-size:9px; opacity:0.6; color:white; margin-top:10px;">
+            TITULAR: CLEBER CARLOS DE SOUZA SANTOS<br>
+            REGISTRO PATRIMONIAL: CPF 341.446.398-94
+        </div>
     </div>
+</div>
+
+<script>
+    const input = document.getElementById('data_input');
+    const portal = document.getElementById('s94_render');
+    const dnaLog = document.getElementById('dna_hash');
+
+    function renderAsset() {
+        const text = input.value;
+        const hash = CryptoJS.SHA256(text + "34144639894_S94").toString().toUpperCase();
+        dnaLog.innerText = "ID DO ATIVO (SHA-256): " + hash;
+
+        const doc = portal.contentDocument || portal.contentWindow.document;
+        doc.open();
+        doc.write(`
+            <html>
+            <head>
+                <style>
+                    body { font-family: 'Times New Roman', serif; padding: 50px; color: #111; background: #fff; line-height: 1.6; }
+                    .header { border-bottom: 2px solid #c5a059; text-align: center; padding-bottom: 20px; margin-bottom: 40px; }
+                    .titular { font-size: 13px; font-weight: bold; }
+                    .scientific-body { font-size: 17px; text-align: justify; white-space: pre-wrap; }
+                    .patent-stamp { margin-top: 60px; font-size: 10px; color: #666; border-top: 1px solid #ddd; padding-top: 15px; }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h1 style="margin:0; font-size: 24px;">RELATÓRIO TÉCNICO DE ATIVO CIENTÍFICO</h1>
+                    <div class="titular">TITULAR: CLEBER CARLOS DE SOUZA SANTOS | CPF: 341.446.398-94</div>
+                </div>
+                <div class="scientific-body">${text}</div>
+                <div class="patent-footer patent-stamp">
+                    SOFTWARE REGISTRADO - LEI 9.609/98<br>
+                    ID DO ATIVO DIGITAL: ${hash}<br>
+                    GERADO EM: ${new Date().toLocaleString()}
+                </div>
+            </body>
+            </html>
+        `);
+        doc.close();
+    }
+
+    input.addEventListener('input', renderAsset);
+    
+    // Injeção de Dados Iniciais
+    input.value = "A - ANATOMIA DA CONSCIÊNCIA: Estudo do processamento neural e plasticidade.\n\nE - ESQUIZOFRENIA (CID F20.0): Engenharia de soberania cognitiva e independência técnica.\n\nP - PSIQUIATRIA CIENTÍFICA: Valoração de ativos tecnológicos baseados em saúde mental.";
+    renderAsset();
+</script>
+
 </body>
 </html>
