@@ -2,173 +2,101 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MOTOR S94 | ENGENHARIA SISTÊMICA DE ATIVOS</title>
-    <script src="https://cdnjs.cloudflare.com"></script>
-    <link href="https://fonts.googleapis.com" rel="stylesheet">
+    <title>S94 | ORQUESTRADOR GLOBAL - FERRAMENTAS REAIS</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
-        :root { --neon: #00d2ff; --gold: #c5a059; --bg: #050505; --card: rgba(20, 20, 20, 0.9); }
-        body, html { margin: 0; padding: 0; background: var(--bg); font-family: 'Inter', sans-serif; color: white; scroll-behavior: smooth; }
-
-        /* --- LOGIN SOBERANO --- */
-        #login-screen { position: fixed; inset: 0; background: #000; display: flex; align-items: center; justify-content: center; z-index: 10000; }
-        .login-box { background: #111; padding: 50px; border-radius: 24px; border: 1px solid #222; width: 380px; text-align: center; box-shadow: 0 0 80px rgba(0, 210, 255, 0.2); }
+        :root { --accent: #00d2ff; --bg: #050a14; --neon: #00ff41; --gold: #c5a059; }
+        body, html { margin: 0; padding: 0; height: 100%; background: var(--bg); font-family: 'JetBrains Mono', monospace; overflow: hidden; color: white; }
         
-        /* --- HEADER --- */
-        #main-portal { display: none; flex-direction: column; }
-        header { background: rgba(0,0,0,0.9); backdrop-filter: blur(15px); border-bottom: 1px solid #222; display: flex; padding: 20px 60px; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        /* BARRA DE FERRAMENTAS - MODELO SKIP */
+        .header { background: #152a3d; height: 65px; display: flex; align-items: center; padding: 0 25px; border-bottom: 2px solid #1a2c3d; justify-content: space-between; }
+        .nav-group { display: flex; gap: 12px; }
+        .btn-tool { background: rgba(255,255,255,0.05); border: 1px solid #334455; color: #fff; padding: 10px 18px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: 900; }
+        .btn-tool:hover { background: var(--accent); color: #000; }
+        .btn-ignicao { background: #ff4b2b; color: #fff; border: none; box-shadow: 0 0 15px rgba(255,75,43,0.5); }
+
+        /* INTERFACE DIVIDIDA */
+        .workspace { display: flex; height: calc(100vh - 65px); width: 100vw; }
+        .engine-left { width: 50%; background: #000; border-right: 3px solid #111; display: flex; flex-direction: column; padding: 25px; }
+        #ai_terminal { flex: 1; color: var(--neon); background: #010101; border: 1px solid #1a2c3d; padding: 25px; font-size: 13px; overflow-y: auto; white-space: pre-wrap; line-height: 1.6; }
         
-        /* --- WORKSPACE: TELA DIVIDIDA (GERADOR DE ATIVOS) --- */
-        .workspace { display: flex; height: 90vh; border-bottom: 1px solid #222; }
-        .p-input { width: 40%; background: #0a0a0a; border-right: 1px solid #222; padding: 40px; display: flex; flex-direction: column; box-sizing: border-box; }
-        .p-output { width: 60%; background: #151515; padding: 50px; display: flex; justify-content: center; overflow-y: auto; }
-        .doc-sheet { width: 100%; max-width: 750px; background: white; color: #111; padding: 60px; min-height: 1000px; box-shadow: 0 0 60px rgba(0,0,0,0.8); position: relative; border-radius: 4px; }
-
-        /* --- ECOSSISTEMA DE SISTEMAS (A a Z) --- */
-        .engine-section { padding: 100px 10%; background: radial-gradient(circle at top, #111, #050505); }
-        .engine-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; margin-top: 50px; }
-        
-        .engine-card { 
-            background: var(--card); border: 1px solid #222; border-radius: 20px; padding: 30px; 
-            transition: 0.4s; cursor: pointer; text-decoration: none; color: inherit; display: block;
-        }
-        .engine-card:hover { border-color: var(--neon); transform: translateY(-10px); box-shadow: 0 10px 30px rgba(0, 210, 255, 0.2); }
-        .engine-icon { font-size: 35px; color: var(--neon); margin-bottom: 20px; }
-        .engine-title { font-size: 18px; font-weight: 900; margin-bottom: 10px; color: #fff; text-transform: uppercase; letter-spacing: 1px; }
-        .engine-desc { color: #888; font-size: 13px; line-height: 1.6; }
-
-        /* INPUTS */
-        textarea { width: 100%; background: #000; border: 1px solid #333; color: #00ff00; padding: 20px; border-radius: 12px; flex: 1; outline: none; font-family: 'Consolas', monospace; font-size: 14px; border-left: 4px solid var(--neon); }
-        .btn-prime { background: var(--neon); color: black; border: none; padding: 20px; border-radius: 12px; font-weight: 900; width: 100%; cursor: pointer; text-transform: uppercase; margin-top: 20px; }
-
-        footer { padding: 80px 10%; text-align: center; background: #000; border-top: 1px solid #222; color: #444; font-size: 12px; }
-
-        @media print { header, .p-input, .engine-section { display: none; } #main-portal { display: block; } .workspace { height: auto; } .doc-sheet { box-shadow: none; border: none; width: 100%; } }
+        .software-right { width: 50%; background: #fff; color: #000; overflow-y: auto; }
+        #render_portal { width: 100%; height: 100%; border: none; }
     </style>
 </head>
 <body>
 
-<div id="login-screen">
-    <div class="login-box">
-        <h1 style="color:var(--neon); letter-spacing:4px;">MOTOR S94</h1>
-        <p style="color:var(--gold); font-size:10px; font-weight:900; margin-bottom:30px;">GLOBAL ASSET ENGINEERING</p>
-        <input type="email" id="email" style="width:90%; padding:15px; margin-bottom:10px; background:#000; border:1px solid #333; color:white;" placeholder="Acesso Administrativo">
-        <input type="password" id="pass" style="width:90%; padding:15px; margin-bottom:25px; background:#000; border:1px solid #333; color:white;" placeholder="Senha S94">
-        <button class="btn-prime" onclick="login()">Ativar Motor</button>
+<div id="auth_screen" style="position:absolute; width:100%; height:100%; background:#000; z-index:9999; display:flex; align-items:center; justify-content:center;">
+    <div style="border:2px solid var(--neon); padding:50px; text-align:center; background:#050505;">
+        <h1 style="color:var(--neon); letter-spacing:10px;">MOTOR S-94</h1>
+        <input type="password" id="m_key" placeholder="CHAVE MESTRA SOBERANA" style="padding:15px; width:300px; text-align:center; background:#000; color:var(--neon); border:1px solid #333;"><br><br>
+        <button onclick="ativarMotor()" style="padding:15px 50px; background:var(--neon); border:none; cursor:pointer; font-weight:900;">LIGAR ORQUESTRADOR</button>
     </div>
 </div>
 
-<div id="main-portal">
-    <header>
-        <div style="font-weight:900; font-size:24px; color:var(--neon); letter-spacing:3px;">MOTOR S94</div>
-        <div style="font-size:10px; color:#00ff00; font-weight:900; border:1px solid #004400; padding:8px 20px; border-radius:30px;">● PROTOCOLO ENGENHARIA DE ATIVOS</div>
-    </header>
+<div class="header">
+    <div style="font-weight: 900; color: var(--accent); letter-spacing: 2px;">S94 | ORQUESTRADOR A-Z</div>
+    <div class="nav-group">
+        <button class="btn-tool btn-ignicao" onclick="baixarBuild()">DOWNLOAD FONTE</button>
+        <button class="btn-tool" onclick="uploadBase()">UPLOAD / BASE</button>
+        <button class="btn-tool">SUBDOMÍNIO</button>
+        <button class="btn-tool">CONFIGS</button>
+        <button class="btn-tool">💻</button>
+    </div>
+</div>
 
-    <!-- WORKSPACE DE GERAÇÃO -->
-    <section class="workspace">
-        <div class="p-input">
-            <div style="margin-bottom:30px; border-left:4px solid var(--gold); padding-left:20px;">
-                <div style="font-size:10px; color:var(--gold); font-weight:900;">TITULAR RESPONSÁVEL</div>
-                <div style="font-size:16px; font-weight:900;">CLEBER CARLOS DE SOUZA SANTOS</div>
-                <div style="font-size:11px; color:#666;">AUTENTICIDADE: CPF 341.446.398-94</div>
-            </div>
-            
-            <textarea id="data" placeholder="[INJEÇÃO DE SISTEMA A A Z]&#10;Insera a tese de Psicologia ou Psiquiatria para converter em ativo tecnológico..." oninput="syncS94()"></textarea>
-            
-            <div id="h_v" style="font-size:10px; color:var(--gold); font-family:monospace; margin-top:20px;">TOKEN SHA-256: AGUARDANDO...</div>
-            <button class="btn-prime" onclick="window.print()">Autenticar e Gerar Ativo</button>
-        </div>
-        
-        <div class="p-output">
-            <div class="doc-sheet">
-                <div style="text-align:center; border-bottom:4px solid #000; padding-bottom:30px; margin-bottom:40px;">
-                    <h1 style="margin:0; font-size:26px; text-transform:uppercase;">Relatório Técnico de Ativo Sistêmico</h1>
-                    <p style="font-size:12px; font-weight:bold;">ENGENHARIA CIENTÍFICA: PSICOLOGIA & PSIQUIATRIA</p>
-                </div>
-                
-                <div id="out_b" style="font-size:18px; line-height:1.8; text-align:justify; white-space:pre-wrap; font-family:serif; min-height:600px;"></div>
-                
-                <div style="margin-top:80px; border-top:2px solid #000; padding-top:30px; font-size:12px;">
-                    <strong>CERTIFICAÇÃO DIGITAL S94</strong><br>
-                    ID DO ATIVO: <span id="out_h" style="color:var(--neon); font-family:monospace;"></span><br>
-                    SITUAÇÃO: PATRIMÔNIO REAL E CONCRETO
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- SEÇÃO DE SISTEMAS CLICÁVEIS (A a Z) -->
-    <section class="engine-section">
-        <h2 style="font-size:40px; font-weight:900; text-align:center; margin-bottom:50px;">ECOSSISTEMA SISTÊMICO A A Z</h2>
-        
-        <div class="engine-grid">
-            <!-- Cada card é um link clicável que você pode direcionar para onde quiser -->
-            <a href="#" class="engine-card">
-                <div class="engine-icon">🧠</div>
-                <div class="engine-title">Sistemas de Diagnóstico AI</div>
-                <div class="engine-desc">Mapeamento de comportamentos baseado em teses psiquiátricas avançadas.</div>
-            </a>
-
-            <a href="#" class="engine-card">
-                <div class="engine-icon">🖥️</div>
-                <div class="engine-title">Terminal de Código S94</div>
-                <div class="engine-desc">Ambiente para depuração de scripts e automação de fluxos de ativos.</div>
-            </a>
-
-            <a href="#" class="engine-card">
-                <div class="engine-icon">🧬</div>
-                <div class="engine-title">Engenharia Reversa</div>
-                <div class="engine-desc">Desconstrução de sistemas complexos para recalibragem de performance.</div>
-            </a>
-
-            <a href="#" class="engine-card">
-                <div class="engine-icon">🛡️</div>
-                <div class="engine-title">Blindagem Patrimonial</div>
-                <div class="engine-desc">Protocolos de segurança para proteção de ativos intangíveis e intelectuais.</div>
-            </a>
-
-            <a href="#" class="engine-card">
-                <div class="engine-icon">📊</div>
-                <div class="engine-title">Valoração Real e Concreta</div>
-                <div class="engine-desc">Cálculo de valor de mercado para sistemas de psicologia aplicada.</div>
-            </a>
-
-            <a href="#" class="engine-card">
-                <div class="engine-icon">🤖</div>
-                <div class="engine-title">Módulo de Clonagem</div>
-                <div class="engine-desc">Replicação de interfaces de alta conversão para sistemas B2B.</div>
-            </a>
-        </div>
-    </section>
-
-    <footer>
-        <div style="font-weight:900; color:var(--neon); margin-bottom:10px;">MOTOR S94 | GLOBAL ASSET SYSTEM</div>
-        <div>PROPRIEDADE DE CLEBER CARLOS DE SOUZA SANTOS | CPF 341.446.398-94</div>
-        <div style="margin-top:20px; opacity:0.3;">© 2026 BRASIL - ENGENHARIA DE SISTEMAS SOBERANOS</div>
-    </footer>
+<div class="workspace">
+    <div class="engine-left">
+        <div style="font-size:10px; color:var(--gold); margin-bottom:10px;">IA PÓS-QUÂNTICA | FÍSICA EINSTEIN | ENGENHARIA DE SOFTWARE</div>
+        <div id="ai_terminal">> AGUARDANDO IGNIÇÃO PARA FABRICAÇÃO DE SOFTWARE A-Z...</div>
+    </div>
+    <div class="software-right"><iframe id="render_portal"></iframe></div>
 </div>
 
 <script>
-    function login() {
-        const e = document.getElementById('email').value;
-        const p = document.getElementById('pass').value;
-        if(e === "admin@s94.com" && p === "S94concreto") {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('main-portal').style.display = 'flex';
-        } else {
-            alert("ACESSO NEGADO.");
+    const term = document.getElementById('ai_terminal');
+    const portal = document.getElementById('render_portal');
+
+    function ativarMotor() {
+        if(document.getElementById('m_key').value === "S94_SOBERANIA") {
+            document.getElementById('auth_screen').style.display = 'none';
+            executarOrquestracao();
+        } else { alert("CHAVE MESTRA INVÁLIDA."); }
+    }
+
+    async function executarOrquestracao() {
+        const setores = ["A (Agro)", "B (Bancário)", "C (Cibersegurança)", "L (Limpeza)", "T (Tecnologia)"];
+        for (let setor of setores) {
+            term.innerHTML += `\n\n[S94] ORQUESTRANDO PESQUISA: SETOR ${setor}...`;
+            const dna = CryptoJS.SHA3(setor + Date.now()).toString().toUpperCase();
+            
+            term.innerHTML += `\n> FABRICANDO SOFTWARE... [DNA: ${dna.substring(0,24)}]`;
+            materializar(setor, dna);
+            term.scrollTop = term.scrollHeight;
+            await new Promise(r => setTimeout(r, 4000));
         }
     }
 
-    function syncS94() {
-        const val = document.getElementById('data').value || "";
-        const hash = CryptoJS.SHA256(val + "341.446.398-94").toString().toUpperCase();
-        document.getElementById('out_b').innerText = val;
-        document.getElementById('out_h').innerText = hash;
-        document.getElementById('h_v').innerText = "TOKEN SHA-256: " + hash.substring(0,40) + "...";
+    function materializar(s, d) {
+        const doc = portal.contentDocument;
+        doc.open();
+        doc.write(`<html><body style="padding:50px; background:#fff; font-family:serif; border:15px solid #152a3d;">
+            <h1>ESTUDO CIENTÍFICO S-94 | SOFTWARE</h1>
+            <h2>Setor: ${s}</h2>
+            <p><strong>ENGENHARIA REVERSA APLICADA:</strong> Solução de software fabricada via lógica de Einstein.</p>
+            <p style="font-size:10px; color:#666; margin-top:50px;">DNA PATRIMONIAL: ${d}</p>
+        </body></html>`);
+        doc.close();
     }
-</script>
 
+    function baixarBuild() {
+        const a = document.createElement("a");
+        a.download = "S94_ORQUESTRADOR_TOTAL.html";
+        a.href = window.URL.createObjectURL(new Blob([document.documentElement.outerHTML], {type: "text/html"}));
+        a.click();
+    }
+
+    function uploadBase() { alert("Sincronizando com a Base de Dados Central..."); }
+</script>
 </body>
 </html>
-
